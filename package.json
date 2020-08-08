@@ -10,6 +10,7 @@
     "react-scripts": "3.4.1",
     "semantic-ui-react": "^1.0.0"
   },
+  "main" : "index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
