@@ -6,6 +6,8 @@ import Navigation from "./components/navigation";
 import Searchbar from "./components/searchbar";
 import asemat from "./asemat";
 import Datatable from "./components/datatable";
+import Tempgraph from "./components/tempgraph";
+import * as d3 from "d3";
 // Alkuperäinen datankäsittelijäfunktio jota kutsutaan searchbar-komponentista.
 // Palauttaa datan luettavaan muotoon datatablen table-elementtiin
 // Tämän kutsuu searchbar-komnponentin handleOptionClick-funktio
@@ -109,6 +111,18 @@ export function showData(d) {
   }.${new Date(
     timevaluepairscold[timevaluepairscold.length - 1].time
   ).getFullYear()})`;
+
+  // Lopuksi kutsutaan kuvaajanpiirtäjäfunktio
+  drawGraph(
+    timevaluepairshot.slice(
+      timevaluepairshot.length - 30,
+      timevaluepairshot.length
+    ),
+    timevaluepairscold.slice(
+      timevaluepairscold.length - 30,
+      timevaluepairscold.length
+    )
+  );
 }
 // Tätä funktiota kutsutaan searchbar-komponentista. Funktio hakee str-parametria (käyttäjän syöttämä)
 // vastaavat tulokset asemat-muuttujasta (asemat.js) ja palauttaaa tulokset kutsuvan funktion käyttöön
@@ -129,6 +143,92 @@ export function returnStations(str) {
     return matchList;
   }
 }
+
+// Piirtää lämpötilakuvaajan kun käyttäjä valitsee mittausaseman
+function drawGraph(hot, cold) {
+  // Tarkistetaan onko kuvaaja jo ennestään olemassa
+  if (document.getElementById("tempgraph").children.length > 0) {
+    d3.select("svg").remove();
+  }
+  // set the dimensions and margins of the graph
+  var margin = { top: 30, right: 30, bottom: 30, left: 30 },
+    width = window.innerWidth * 0.65 - 60,
+    height = width * 0.6;
+
+  // append the svg object to the body of the page
+  var svg = d3
+    .select("#tempgraph")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var x = d3
+    .scaleTime()
+    .domain(
+      d3.extent(hot, function (d) {
+        return d.time;
+      })
+    )
+    .range([0, width]);
+
+  svg
+    .append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  var y = d3
+    .scaleLinear()
+    .domain([
+      d3.min(cold, function (d) {
+        return +d.value;
+      }),
+      d3.max(hot, function (d) {
+        return +d.value;
+      }),
+    ])
+    .range([height, 0]);
+  svg.append("g").call(d3.axisLeft(y));
+
+  // Add the line
+  svg
+    .append("path")
+    .datum(hot)
+    .attr("fill", "none")
+    .attr("stroke", "red")
+    .attr("stroke-width", 1.5)
+    .attr(
+      "d",
+      d3
+        .line()
+        .x(function (d) {
+          return x(d.time);
+        })
+        .y(function (d) {
+          return y(d.value);
+        })
+    );
+
+  svg
+    .append("path")
+    .datum(cold)
+    .attr("fill", "none")
+    .attr("stroke", "blue")
+    .attr("stroke-width", 1.5)
+    .attr(
+      "d",
+      d3
+        .line()
+        .x(function (d) {
+          return x(d.time);
+        })
+        .y(function (d) {
+          return y(d.value);
+        })
+    );
+}
+
 function lastMonthMax(arr) {
   return arr
     .slice(
@@ -171,6 +271,7 @@ ReactDOM.render(
     <Navigation />
     <Searchbar />
     <Datatable elements={Datatable.elements} />
+    <Tempgraph />
   </React.StrictMode>,
   document.getElementById("root")
 );

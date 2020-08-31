@@ -9,8 +9,8 @@ class Datatable extends Component {
           <tbody>
             <tr>
               <th>Aikaväli</th>
-              <th>Korkein lämpötila</th>
-              <th>Alhaisin lämpötila</th>
+              <th>Korkein lämpötila (°C)</th>
+              <th>Alhaisin lämpötila (°C)</th>
             </tr>
           </tbody>
           <tbody>
