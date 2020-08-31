@@ -115,11 +115,11 @@ export function showData(d) {
   // Lopuksi kutsutaan kuvaajanpiirtäjäfunktio
   drawGraph(
     timevaluepairshot.slice(
-      timevaluepairshot.length - 30,
+      timevaluepairshot.length - 90,
       timevaluepairshot.length
     ),
     timevaluepairscold.slice(
-      timevaluepairscold.length - 30,
+      timevaluepairscold.length - 90,
       timevaluepairscold.length
     )
   );
